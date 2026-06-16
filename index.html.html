@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mlue — Social Media & Automation for Small Business</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Epilogue:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0A0A0A;
+  --blue: #4F6EF7;
+  --blue-light: #7B93FF;
+  --white: #F5F5F0;
+  --grey: #888;
+  --grey-dim: #1A1A1A;
+  --border: rgba(255,255,255,0.08);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Epilogue', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.2rem 5vw;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s;
+}
+
+.nav-logo {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  text-decoration: none;
+}
+
+.nav-logo span { color: var(--blue); }
+
+.nav-links {
+  display: flex; gap: 2.5rem; list-style: none;
+}
+
+.nav-links a {
+  color: var(--grey);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--white); }
+
+.nav-cta {
+  background: var(--blue);
+  color: var(--white) !important;
+  padding: 0.55rem 1.4rem;
+  border-radius: 2rem;
+  transition: background 0.2s, transform 0.2s !important;
+}
+
+.nav-cta:hover { background: var(--blue-light) !important; transform: translateY(-1px); }
+
+/* HERO */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 0 5vw;
+  padding-top: 6rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.6s 0.2s forwards;
+}
+
+.hero-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(4rem, 12vw, 10rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+
+.hero-title .line {
+  display: block;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.hero-title .line:nth-child(1) { animation: fadeUp 0.7s 0.3s forwards; }
+.hero-title .line:nth-child(2) { animation: fadeUp 0.7s 0.45s forwards; }
+.hero-title .line:nth-child(3) { animation: fadeUp 0.7s 0.6s forwards; }
+
+.hero-title .blue { color: var(--blue); }
+
+.hero-sub {
+  max-width: 480px;
+  color: var(--grey);
+  font-size: 1.1rem;
+  font-weight: 300;
+  line-height: 1.7;
+  margin-bottom: 3rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.7s 0.75s forwards;
+}
+
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.7s 0.9s forwards;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: var(--white);
+  padding: 1rem 2.2rem;
+  border-radius: 3rem;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--blue-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(79,110,247,0.4);
+}
+
+.btn-secondary {
+  color: var(--white);
+  padding: 1rem 2.2rem;
+  border: 1px solid var(--border);
+  border-radius: 3rem;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.btn-secondary:hover { border-color: var(--grey); transform: translateY(-2px); }
+
+/* HERO BG */
+.hero-orb {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,110,247,0.15) 0%, transparent 70%);
+  top: -100px; right: -100px;
+  pointer-events: none;
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.hero-orb2 {
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,110,247,0.08) 0%, transparent 70%);
+  bottom: 100px; left: 10vw;
+  pointer-events: none;
+  animation: pulse 8s ease-in-out infinite reverse;
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 5vw;
+  display: flex; align-items: center; gap: 0.75rem;
+  color: var(--grey);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeUp 0.7s 1.2s forwards;
+}
+
+.scroll-line {
+  width: 40px; height: 1px;
+  background: var(--grey);
+  animation: scrollLine 2s 1.5s ease-in-out infinite;
+}
+
+/* TICKER */
+.ticker-wrap {
+  background: var(--blue);
+  padding: 0.9rem 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-inner {
+  display: inline-flex;
+  animation: ticker 25s linear infinite;
+}
+
+.ticker-inner span {
+  font-family: 'Anton', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0 3rem;
+  color: var(--white);
+}
+
+.ticker-inner span.dot { color: rgba(255,255,255,0.4); padding: 0; }
+
+/* SECTIONS SHARED */
+section {
+  padding: 8rem 5vw;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+
+.section-sub {
+  color: var(--grey);
+  font-size: 1.05rem;
+  font-weight: 300;
+  max-width: 560px;
+  line-height: 1.8;
+}
+
+/* ABOUT */
+#about {
+  border-top: 1px solid var(--border);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: center;
+  margin-top: 5rem;
+}
+
+.about-visual {
+  position: relative;
+  height: 420px;
+}
+
+.about-card {
+  position: absolute;
+  background: var(--grey-dim);
+  border: 1px solid var(--border);
+  border-radius: 1.2rem;
+  padding: 2rem;
+  transition: transform 0.3s;
+}
+
+.about-card:hover { transform: translateY(-4px); }
+
+.about-card.card-1 { top: 0; left: 0; width: 65%; }
+.about-card.card-2 { bottom: 0; right: 0; width: 65%; }
+.about-card.card-3 { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 55%; }
+
+.card-icon {
+  width: 44px; height: 44px;
+  background: rgba(79,110,247,0.15);
+  border-radius: 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.card-text {
+  color: var(--grey);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.about-stat {
+  display: flex; gap: 0.5rem; align-items: baseline;
+  margin-top: 1rem;
+}
+
+.stat-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 2.5rem;
+  color: var(--blue);
+}
+
+.stat-label { color: var(--grey); font-size: 0.85rem; }
+
+/* SERVICES */
+#services {
+  border-top: 1px solid var(--border);
+  background: var(--grey-dim);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5px;
+  margin-top: 4rem;
+  border: 1.5px solid var(--border);
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.service-card {
+  background: var(--bg);
+  padding: 3rem 2.5rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s;
+  cursor: default;
+}
+
+.service-card:hover { background: rgba(79,110,247,0.05); }
+.service-card:nth-child(3n) { border-right: none; }
+.service-card:nth-child(4), .service-card:nth-child(5), .service-card:nth-child(6) { border-bottom: none; }
+
+.service-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 1rem;
+  color: var(--blue);
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.service-icon { font-size: 2rem; margin-bottom: 1.2rem; display: block; }
+
+.service-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.service-desc {
+  color: var(--grey);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.service-tag {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--blue);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(79,110,247,0.3);
+  padding: 0.3rem 0.8rem;
+  border-radius: 2rem;
+}
+
+/* HOW IT WORKS */
+#process {
+  border-top: 1px solid var(--border);
+}
+
+.process-steps {
+  margin-top: 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.process-step {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+.process-step:hover { background: rgba(255,255,255,0.01); }
+
+.step-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 3.5rem;
+  color: rgba(79,110,247,0.2);
+  line-height: 1;
+}
+
+.step-title {
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  padding-top: 0.4rem;
+}
+
+.step-sub { color: var(--grey); font-size: 0.9rem; line-height: 1.7; }
+
+/* PORTFOLIO */
+#portfolio {
+  border-top: 1px solid var(--border);
+  background: var(--grey-dim);
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  margin-top: 4rem;
+}
+
+.portfolio-grid .col-right {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.portfolio-item {
+  border-radius: 1.2rem;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.portfolio-item .inner {
+  padding: 2.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 280px;
+}
+
+.portfolio-item.big .inner { min-height: 400px; }
+
+.portfolio-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(79,110,247,0.12) 0%, transparent 60%);
+  transition: opacity 0.3s;
+}
+
+.portfolio-item:hover .portfolio-bg { opacity: 1.5; }
+
+.portfolio-tag {
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.portfolio-name {
+  font-weight: 700;
+  font-size: 1.25rem;
+  position: relative;
+  line-height: 1.3;
+}
+
+.portfolio-name-sm {
+  font-weight: 600;
+  font-size: 1rem;
+  position: relative;
+  line-height: 1.3;
+}
+
+.portfolio-result {
+  margin-top: 0.5rem;
+  color: var(--grey);
+  font-size: 0.85rem;
+  position: relative;
+}
+
+.emoji-bg {
+  position: absolute;
+  top: 2rem; right: 2rem;
+  font-size: 4rem;
+  opacity: 0.15;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.portfolio-item:hover .emoji-bg { opacity: 0.25; transform: scale(1.1) rotate(-5deg); }
+
+/* TESTIMONIALS */
+#testimonials {
+  border-top: 1px solid var(--border);
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 4rem;
+}
+
+.testimonial-card {
+  background: var(--grey-dim);
+  border: 1px solid var(--border);
+  border-radius: 1.2rem;
+  padding: 2.5rem;
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(79,110,247,0.3);
+}
+
+.stars { color: var(--blue); font-size: 1.1rem; margin-bottom: 1.5rem; letter-spacing: 0.1em; }
+
+.testimonial-text {
+  color: var(--white);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  font-weight: 300;
+}
+
+.testimonial-author { display: flex; align-items: center; gap: 1rem; }
+
+.author-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(79,110,247,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--blue);
+  font-family: 'Anton', sans-serif;
+  flex-shrink: 0;
+}
+
+.author-name { font-weight: 600; font-size: 0.9rem; }
+.author-biz { color: var(--grey); font-size: 0.8rem; }
+
+/* CTA */
+#cta {
+  border-top: 1px solid var(--border);
+  background: var(--grey-dim);
+  text-align: center;
+  padding: 10rem 5vw;
+}
+
+.cta-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+
+.cta-title .blue { color: var(--blue); }
+
+.cta-sub {
+  color: var(--grey);
+  font-size: 1.1rem;
+  max-width: 480px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+/* CONTACT STRIP */
+#contact {
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  padding: 0;
+}
+
+.contact-item {
+  padding: 3.5rem 5vw;
+  border-right: 1px solid var(--border);
+  transition: background 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.contact-item:hover { background: rgba(79,110,247,0.05); }
+.contact-item:last-child { border-right: none; }
+
+.contact-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.contact-val {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--white);
+  transition: color 0.2s;
+}
+
+.contact-item:hover .contact-val { color: var(--blue); }
+
+/* FOOTER */
+footer {
+  padding: 3rem 5vw;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-logo {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.4rem;
+  color: var(--white);
+}
+
+.footer-logo span { color: var(--blue); }
+
+.footer-copy { color: var(--grey); font-size: 0.82rem; }
+
+.footer-links { display: flex; gap: 2rem; }
+
+.footer-links a {
+  color: var(--grey);
+  text-decoration: none;
+  font-size: 0.82rem;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--white); }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.7; }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scrollLine {
+  0%, 100% { width: 40px; opacity: 1; }
+  50% { width: 70px; opacity: 0.5; }
+}
+
+/* SCROLL REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .about-grid { grid-template-columns: 1fr; }
+  .about-visual { display: none; }
+  .services-grid { grid-template-columns: 1fr; }
+  .service-card { border-right: none; }
+  .process-step { grid-template-columns: 50px 1fr; }
+  .process-step > div:last-child { display: none; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  #contact { grid-template-columns: 1fr; }
+  .contact-item { border-right: none; border-bottom: 1px solid var(--border); }
+  footer { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">ml<span>.</span>ue</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#process">How it works</a></li>
+    <li><a href="#portfolio">Work</a></li>
+    <li><a href="#contact" class="nav-cta">Get started</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-orb2"></div>
+
+  <p class="hero-eyebrow">Social media & automation agency</p>
+  <h1 class="hero-title">
+    <span class="line">Your brand.</span>
+    <span class="line">On <span class="blue">every</span></span>
+    <span class="line">feed.</span>
+  </h1>
+  <p class="hero-sub">mlue handles your Instagram content, grows your audience, and automates your customer conversations on WhatsApp — so you run your business, not your phone.</p>
+  <div class="hero-actions">
+    <a href="#contact" class="btn-primary">Start growing →</a>
+    <a href="#services" class="btn-secondary">See what we do</a>
+  </div>
+
+  <div class="hero-scroll">
+    <span class="scroll-line"></span>
+    Scroll to explore
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span>Instagram Content</span><span class="dot">·</span>
+    <span>WhatsApp Automation</span><span class="dot">·</span>
+    <span>Booking Agents</span><span class="dot">·</span>
+    <span>Reels & Stories</span><span class="dot">·</span>
+    <span>Caption Writing</span><span class="dot">·</span>
+    <span>Community Growth</span><span class="dot">·</span>
+    <span>Small Business Focus</span><span class="dot">·</span>
+    <span>Instagram Content</span><span class="dot">·</span>
+    <span>WhatsApp Automation</span><span class="dot">·</span>
+    <span>Booking Agents</span><span class="dot">·</span>
+    <span>Reels & Stories</span><span class="dot">·</span>
+    <span>Caption Writing</span><span class="dot">·</span>
+    <span>Community Growth</span><span class="dot">·</span>
+    <span>Small Business Focus</span><span class="dot">·</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-label reveal">Who we are</p>
+  <h2 class="section-title reveal reveal-delay-1">Built for businesses<br>that don't have time.</h2>
+  <p class="section-sub reveal reveal-delay-2">mlue is a lean marketing team that specialises in one thing: making small businesses look massive online. We create content, grow your Instagram, and build automation that handles your customer conversations around the clock.</p>
+
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p style="color: var(--grey); line-height: 1.9; font-weight: 300; font-size: 1.05rem; margin-bottom: 2rem;">We started mlue because great marketing shouldn't cost a fortune or eat your day. Every small business deserves a consistent, professional presence — not just the ones with big budgets.</p>
+      <p style="color: var(--grey); line-height: 1.9; font-weight: 300; font-size: 1.05rem;">We pair creative content with smart WhatsApp bots that answer questions, confirm bookings, and follow up with customers while you sleep.</p>
+      <div style="display: flex; gap: 3rem; margin-top: 3rem;">
+        <div class="about-stat">
+          <span class="stat-num">50+</span>
+          <span class="stat-label">clients served</span>
+        </div>
+        <div class="about-stat">
+          <span class="stat-num">3×</span>
+          <span class="stat-label">avg engagement lift</span>
+        </div>
+        <div class="about-stat">
+          <span class="stat-num">24/7</span>
+          <span class="stat-label">bot uptime</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-visual reveal reveal-delay-2">
+      <div class="about-card card-1">
+        <div class="card-icon">📱</div>
+        <div class="card-title">Content that converts</div>
+        <div class="card-text">Posts, Reels, and Stories crafted to stop the scroll and drive real action.</div>
+      </div>
+      <div class="about-card card-3">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">WhatsApp automation</div>
+        <div class="card-text">Bots that book, answer, and follow up — automatically.</div>
+      </div>
+      <div class="about-card card-2">
+        <div class="card-icon">📈</div>
+        <div class="card-title">Growth you can measure</div>
+        <div class="card-text">Clear reports. Real numbers. No vanity metrics.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <p class="section-label reveal">What we do</p>
+  <h2 class="section-title reveal reveal-delay-1">Six things.<br>Done properly.</h2>
+
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01</div>
+      <span class="service-icon">📸</span>
+      <div class="service-title">Instagram Content Creation</div>
+      <div class="service-desc">We plan, design, and write every post, Reel, and Story for your account. Consistent aesthetic, on-brand copy, posted on schedule.</div>
+      <span class="service-tag">Monthly retainer</span>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-num">02</div>
+      <span class="service-icon">🎬</span>
+      <div class="service-title">Reels & Video Production</div>
+      <div class="service-desc">Short-form video is where attention lives. We script, edit, and produce Reels that reach beyond your existing followers.</div>
+      <span class="service-tag">Add-on</span>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-num">03</div>
+      <span class="service-icon">💬</span>
+      <div class="service-title">WhatsApp Booking Agents</div>
+      <div class="service-desc">An automated bot that handles appointment requests, sends confirmations, and follows up with reminders — without you lifting a finger.</div>
+      <span class="service-tag">Setup + monthly</span>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">04</div>
+      <span class="service-icon">🤝</span>
+      <div class="service-title">Community Management</div>
+      <div class="service-desc">We respond to DMs, moderate comments, and keep your audience engaged so the algorithm keeps showing your content.</div>
+      <span class="service-tag">Monthly retainer</span>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-num">05</div>
+      <span class="service-icon">🎯</span>
+      <div class="service-title">Growth Strategy</div>
+      <div class="service-desc">Hashtag research, competitor analysis, posting cadence, and a 90-day plan to grow the right audience for your business.</div>
+      <span class="service-tag">One-time + ongoing</span>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-num">06</div>
+      <span class="service-icon">📊</span>
+      <div class="service-title">Monthly Reporting</div>
+      <div class="service-desc">A clear breakdown of reach, engagement, follower growth, and bot interactions every month. You always know what's working.</div>
+      <span class="service-tag">Included</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <p class="section-label reveal">How it works</p>
+  <h2 class="section-title reveal reveal-delay-1">From first call<br>to first post.</h2>
+
+  <div class="process-steps">
+    <div class="process-step reveal">
+      <div class="step-num">01</div>
+      <div>
+        <div class="step-title">Discovery call</div>
+        <div class="step-sub">30 minutes. We learn your business, your goals, and your audience. No templates — we start from your reality.</div>
+      </div>
+      <div>
+        <div style="background: rgba(79,110,247,0.06); border: 1px solid var(--border); border-radius: 0.8rem; padding: 1.5rem;">
+          <div style="color: var(--grey); font-size: 0.85rem; line-height: 1.8;">✓ Business audit<br>✓ Competitor review<br>✓ Goal setting<br>✓ Package selection</div>
+        </div>
+      </div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">02</div>
+      <div>
+        <div class="step-title">Strategy & setup</div>
+        <div class="step-sub">We build your content calendar, visual identity, and (if applicable) your WhatsApp bot flows. You approve before anything goes live.</div>
+      </div>
+      <div>
+        <div style="background: rgba(79,110,247,0.06); border: 1px solid var(--border); border-radius: 0.8rem; padding: 1.5rem;">
+          <div style="color: var(--grey); font-size: 0.85rem; line-height: 1.8;">✓ Content calendar<br>✓ Brand guidelines<br>✓ Bot flow design<br>✓ Your approval</div>
+        </div>
+      </div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">03</div>
+      <div>
+        <div class="step-title">We execute</div>
+        <div class="step-sub">Content goes out. The bot goes live. We manage everything while you check in on results — not tasks.</div>
+      </div>
+      <div>
+        <div style="background: rgba(79,110,247,0.06); border: 1px solid var(--border); border-radius: 0.8rem; padding: 1.5rem;">
+          <div style="color: var(--grey); font-size: 0.85rem; line-height: 1.8;">✓ Daily posting<br>✓ Community engagement<br>✓ Bot monitoring<br>✓ Weekly check-ins</div>
+        </div>
+      </div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">04</div>
+      <div>
+        <div class="step-title">Review & grow</div>
+        <div class="step-sub">Monthly reports. Honest conversations. We adjust what isn't working and double down on what is.</div>
+      </div>
+      <div>
+        <div style="background: rgba(79,110,247,0.06); border: 1px solid var(--border); border-radius: 0.8rem; padding: 1.5rem;">
+          <div style="color: var(--grey); font-size: 0.85rem; line-height: 1.8;">✓ Performance report<br>✓ Strategy refinement<br>✓ Growth targets<br>✓ Next month plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <p class="section-label reveal">Our work</p>
+  <h2 class="section-title reveal reveal-delay-1">Results over aesthetics.<br>(Though we do both.)</h2>
+  <p class="section-sub reveal reveal-delay-2" style="margin-bottom: 0;">A sample of what we've built for small businesses like yours.</p>
+
+  <div class="portfolio-grid">
+    <div class="portfolio-item big reveal">
+      <div class="portfolio-bg"></div>
+      <div class="emoji-bg">💇</div>
+      <div class="inner">
+        <div class="portfolio-tag">Hair Salon · Instagram + WhatsApp Bot</div>
+        <div class="portfolio-name">Salon Nour</div>
+        <div class="portfolio-result">+180% bookings in 60 days via automated WhatsApp agent. Grew from 800 to 4,200 Instagram followers.</div>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="portfolio-item reveal reveal-delay-1">
+        <div class="portfolio-bg"></div>
+        <div class="emoji-bg">🍕</div>
+        <div class="inner">
+          <div class="portfolio-tag">Restaurant · Instagram Content</div>
+          <div class="portfolio-name-sm">Crust & Co.</div>
+          <div class="portfolio-result">Tripled Reel reach. 2k new followers in 45 days.</div>
+        </div>
+      </div>
+      <div class="portfolio-item reveal reveal-delay-2">
+        <div class="portfolio-bg"></div>
+        <div class="emoji-bg">🧴</div>
+        <div class="inner">
+          <div class="portfolio-tag">Beauty Brand · Full Package</div>
+          <div class="portfolio-name-sm">Glow Collective</div>
+          <div class="portfolio-result">WhatsApp bot handles 200+ customer queries/week. Zero staff hours spent on DMs.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <p class="section-label reveal">What clients say</p>
+  <h2 class="section-title reveal reveal-delay-1">Don't take<br>our word for it.</h2>
+
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Before mlue I was posting randomly, hoping something would work. Now our Instagram actually brings in customers. The WhatsApp bot alone saved me hours every week."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">F</div>
+        <div>
+          <div class="author-name">Fatima Al-Hassan</div>
+          <div class="author-biz">Owner, Salon Nour</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal reveal-delay-1">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"They understood our brand from day one. The content they make actually looks like us — not some generic template. Our engagement went from dead to genuinely active."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">M</div>
+        <div>
+          <div class="author-name">Marco Diaz</div>
+          <div class="author-biz">Founder, Crust & Co.</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal reveal-delay-2">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"The booking automation was a game changer. Customers message our WhatsApp at 11pm and wake up with a confirmed appointment. I don't touch it. It just works."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">A</div>
+        <div>
+          <div class="author-name">Aisha Kamara</div>
+          <div class="author-biz">Founder, Glow Collective</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <h2 class="cta-title reveal">Ready to stop<br>posting into <span class="blue">the void?</span></h2>
+  <p class="cta-sub reveal reveal-delay-1">Let's talk about your business. First call is free, no pressure, no pitch deck.</p>
+  <div class="cta-actions reveal reveal-delay-2">
+    <a href="#contact" class="btn-primary">Book a free call →</a>
+    <a href="https://wa.me/+94000000000" class="btn-secondary">WhatsApp us</a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<div id="contact">
+  <a href="mailto:hello@mlue.co" class="contact-item">
+    <div class="contact-label">Email us</div>
+    <div class="contact-val">hello@mlue.co</div>
+  </a>
+  <a href="https://wa.me/+94000000000" class="contact-item">
+    <div class="contact-label">WhatsApp</div>
+    <div class="contact-val">+94 000 000 000</div>
+  </a>
+  <a href="https://instagram.com/mlue" class="contact-item">
+    <div class="contact-label">Follow us</div>
+    <div class="contact-val">@mlue</div>
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">ml<span>.</span>ue</div>
+  <div class="footer-copy">© 2026 mlue. All rights reserved.</div>
+  <div class="footer-links">
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#portfolio">Work</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 50) {
+    nav.style.borderBottomColor = 'rgba(255,255,255,0.12)';
+  } else {
+    nav.style.borderBottomColor = 'rgba(255,255,255,0.08)';
+  }
+});
+
+// Smooth anchor clicks
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+</body>
+</html>
