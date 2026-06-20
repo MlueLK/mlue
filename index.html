@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLUE</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="shared.css">
+<style>
+
+/* ── HERO ─────────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+  padding: 0 5vw; padding-top: 5rem; position: relative; overflow: hidden;
+}
+.hero-canvas {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+}
+/* Cursor glow canvas — pointer-events enabled to track mouse */
+#cursorCanvas {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  z-index: 0;
+}
+.hero-glow-1 {
+  position: absolute; width: 700px; height: 700px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 65%);
+  top: -200px; right: -150px; animation: pulse 8s ease-in-out infinite; z-index: 0;
+}
+.hero-glow-2 {
+  position: absolute; width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(34,211,238,0.10) 0%, transparent 65%);
+  bottom: -100px; left: 5vw; animation: pulse 10s ease-in-out infinite 2s reverse; z-index: 0;
+}
+.hero-content { position: relative; z-index: 2; max-width: 620px; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  background: rgba(34,211,238,0.08); border: 1px solid var(--border-cyan);
+  padding: 0.45rem 1.1rem; border-radius: 3rem; margin-bottom: 2.4rem;
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--cyan); opacity: 0; transform: translateY(16px);
+  animation: fadeUp 0.7s 0.2s forwards;
+}
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--cyan);
+  animation: pulse 2s infinite; flex-shrink: 0;
+}
+.hero-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(3rem, 7.5vw, 7rem);
+  line-height: 1.02;
+  letter-spacing: 0.02em;
+  margin-bottom: 2.2rem;
+}
+.hero-title .line { display: block; opacity: 0; transform: translateY(50px); }
+.hero-title .line:nth-child(1) { animation: fadeUp 0.8s 0.35s forwards; }
+.hero-title .line:nth-child(2) { animation: fadeUp 0.8s 0.5s forwards; }
+.hero-title .line:nth-child(3) { animation: fadeUp 0.8s 0.65s forwards; }
+.hero-title .cyan { color: var(--cyan); }
+.hero-title .gradient {
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--blue-bright) 100%);
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  max-width: 480px; color: var(--white-dim); font-size: 1.08rem;
+  font-weight: 300; line-height: 1.85; margin-bottom: 3rem;
+  opacity: 0; transform: translateY(20px); animation: fadeUp 0.8s 0.8s forwards;
+}
+.hero-actions {
+  display: flex; gap: 1.2rem; flex-wrap: wrap;
+  opacity: 0; transform: translateY(20px); animation: fadeUp 0.8s 0.95s forwards;
+  position: relative; z-index: 3;
+}
+
+/* ── HERO SCROLL HINT ─────────────────────────────────────── */
+
+/* ── 3D HERO PANEL ────────────────────────────────────────── */
+.hero-3d-panel {
+  position: absolute; right: 5vw; top: 50%; transform: translateY(-50%);
+  width: 380px; height: 440px; perspective: 1200px; z-index: 2;
+  display: none;
+}
+@media (min-width: 1100px) { .hero-3d-panel { display: block; } }
+.hero-3d-inner {
+  width: 100%; height: 100%; position: relative;
+  transform-style: preserve-3d; transition: transform 0.1s linear;
+}
+.panel-card {
+  position: absolute; border-radius: 1.4rem;
+  background: var(--navy-card); border: 1px solid var(--border-blue);
+  backdrop-filter: blur(10px); padding: 1.8rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.panel-main {
+  width: 100%; height: 100%; display: flex; flex-direction: column;
+  justify-content: space-between; top: 0; left: 0;
+}
+.panel-main .p-label { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--cyan); font-weight: 600; }
+.panel-main .p-stat { font-family: 'Anton', sans-serif; font-size: 4.6rem; color: var(--white); line-height: 1; }
+.panel-main .p-stat span { color: var(--cyan); }
+.panel-main .p-desc { color: var(--grey); font-size: 0.85rem; line-height: 1.6; }
+
+/* Float cards — pulled in from edges to prevent overlap */
+.panel-float-1 {
+  width: 165px;
+  top: -12px; right: -28px; /* tighter so they don't bleed far */
+  background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(34,211,238,0.08));
+  border: 1px solid var(--border-cyan); padding: 1.1rem;
+  animation: float 5s ease-in-out infinite;
+}
+.panel-float-2 {
+  width: 150px;
+  bottom: 10px; left: -28px; z-index: 0; /* behind hero content */
+  background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(34,211,238,0.06));
+  border: 1px solid var(--border-blue); padding: 1.1rem;
+  animation: float 7s ease-in-out infinite 1.5s;
+}
+.mini-stat { font-family: 'Anton', sans-serif; font-size: 1.9rem; color: var(--cyan); }
+.mini-label { font-size: 0.72rem; color: var(--grey); margin-top: 0.25rem; line-height: 1.4; }
+
+/* ── SERVICES PREVIEW ─────────────────────────────────────── */
+#services-preview {
+  padding: 8rem 5vw;
+  background: var(--navy);
+  border-top: 1px solid var(--border);
+}
+.services-list { margin-top: 4rem; }
+.service-row {
+  display: grid; grid-template-columns: 60px 1fr auto;
+  gap: 2.5rem; align-items: center; padding: 2rem 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: padding 0.3s;
+  position: relative; overflow: hidden; text-decoration: none; color: inherit;
+}
+.service-row::before {
+  content: ''; position: absolute; inset: 0; left: -100%;
+  background: linear-gradient(90deg, transparent, rgba(37,99,235,0.05), transparent);
+  transition: left 0.6s;
+}
+.service-row:hover::before { left: 100%; }
+.service-row:hover { padding-left: 1rem; }
+.service-row:last-child { border-bottom: none; }
+.svc-num { font-family: 'Anton', sans-serif; font-size: 0.95rem; color: rgba(34,211,238,0.3); }
+.svc-name { font-size: 1.35rem; font-weight: 600; transition: color 0.3s; }
+.service-row:hover .svc-name { color: var(--cyan); }
+.svc-arrow {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--grey); font-size: 1rem; transition: all 0.3s;
+  flex-shrink: 0;
+}
+.service-row:hover .svc-arrow { border-color: var(--cyan); color: var(--cyan); transform: translateX(4px); box-shadow: 0 0 16px var(--cyan-glow); }
+
+/* ── ABOUT TEASER ─────────────────────────────────────────── */
+#about-teaser {
+  padding: 8rem 5vw;
+  background: var(--navy-deep);
+  border-top: 1px solid var(--border);
+}
+.about-inner {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;
+}
+.about-stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+}
+.stat-block {
+  background: var(--navy-card); border: 1px solid var(--border-blue);
+  border-radius: 1.2rem; padding: 1.8rem;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.stat-block:hover { border-color: var(--border-cyan); transform: translateY(-4px); }
+.stat-block .s-num {
+  font-family: 'Anton', sans-serif; font-size: 2.8rem; color: var(--cyan); line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.stat-block .s-label { color: var(--grey); font-size: 0.82rem; line-height: 1.5; }
+
+/* ── PACKAGES TEASER ──────────────────────────────────────── */
+#packages-teaser {
+  padding: 8rem 5vw;
+  background: var(--navy);
+  border-top: 1px solid var(--border);
+}
+.packages-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; margin-top: 4rem;
+}
+.pkg-card {
+  background: var(--navy-card); border: 1px solid var(--border-blue);
+  border-radius: 1.5rem; padding: 2.4rem;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  position: relative; overflow: hidden;
+}
+.pkg-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border-blue), transparent);
+  transition: background 0.3s;
+}
+.pkg-card:hover { border-color: var(--border-cyan); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.pkg-card:hover::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+.pkg-card.featured {
+  border-color: var(--border-cyan);
+  background: linear-gradient(135deg, rgba(37,99,235,0.08) 0%, var(--navy-card) 100%);
+}
+.pkg-card.featured::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+.pkg-badge {
+  display: inline-block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; padding: 0.28rem 0.75rem; border-radius: 2rem;
+  background: var(--cyan-dim); color: var(--cyan); border: 1px solid var(--border-cyan);
+  margin-bottom: 1.2rem;
+}
+.pkg-name { font-family: 'Anton', sans-serif; font-size: 1.7rem; line-height: 1.1; margin-bottom: 0.8rem; }
+.pkg-tagline { color: var(--grey); font-size: 0.9rem; line-height: 1.65; margin-bottom: 1.8rem; min-height: 3.3rem; }
+.pkg-features { list-style: none; margin-bottom: 2rem; }
+.pkg-features li {
+  color: var(--white-dim); font-size: 0.88rem; padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.6rem;
+}
+.pkg-features li::before { content: '✓'; color: var(--cyan); font-size: 0.75rem; flex-shrink: 0; }
+.pkg-cta {
+  display: flex; align-items: center; gap: 0.5rem;
+  color: var(--cyan); font-weight: 600; font-size: 0.9rem;
+  text-decoration: none; transition: gap 0.3s;
+}
+.pkg-cta:hover { gap: 0.9rem; }
+
+/* ── CTA ──────────────────────────────────────────────────── */
+#cta {
+  padding: 10rem 5vw; text-align: center;
+  background: linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+  border-top: 1px solid var(--border); position: relative; overflow: hidden;
+}
+#cta::before {
+  content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 800px; height: 400px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(37,99,235,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-title {
+  font-family: 'Anton', sans-serif; font-size: clamp(2.8rem, 7.5vw, 6.5rem);
+  line-height: 1.15; letter-spacing: 0.04em; margin-bottom: 2rem; position: relative;
+}
+.cta-title .cyan { color: var(--cyan); }
+.cta-sub { color: var(--grey); font-size: 1.05rem; max-width: 460px; margin: 0 auto 3rem; line-height: 1.75; font-weight: 300; position: relative; }
+.cta-actions { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; position: relative; }
+
+/* ── MOBILE ───────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .about-inner { grid-template-columns: 1fr; gap: 3.5rem; }
+  .packages-grid { grid-template-columns: 1fr; }
+  .pkg-card { padding: 2rem; }
+}
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: clamp(2.4rem, 11vw, 4.5rem);
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+  }
+  .hero-sub { font-size: 0.95rem; }
+  .hero-actions { flex-direction: column; align-items: flex-start; }
+  .hero-actions a { width: 100%; justify-content: center; }
+  .service-row { grid-template-columns: 40px 1fr auto; gap: 1.2rem; }
+  .svc-name { font-size: 1.05rem; }
+  #services-preview, #about-teaser, #packages-teaser { padding: 5rem 5vw; }
+  .about-stats-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .stat-block .s-num { font-size: 2.2rem; }
+  .cta-title { font-size: clamp(2.2rem, 9vw, 4rem); }
+  #cta { padding: 6rem 5vw; }
+  .hero-eyebrow { font-size: 0.7rem; }
+}
+@media (max-width: 480px) {
+  .about-stats-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: clamp(2.6rem, 12vw, 4rem); }
+}
+
+/* Extra breathing room between hero CTAs and ticker */
+.ticker-wrap { margin-top: 0; }
+#hero { padding-bottom: 2rem; }
+
+</style>
+</head>
+<body>
+
+<!-- MLUE INTRO LOADER -->
+<div id="mlue-loader">
+  <div class="loader-stage" id="loaderStage">
+    <svg class="loader-logo" id="loaderSvg" xmlns="http://www.w3.org/2000/svg" viewBox="88 468 634 162">
+      <path class="from-left"  fill="#F0F9FF" d="M 483.695312 620.753906 C 461.484375 616.179688 445.511719 604.699219 437.359375 587.480469 C 431.121094 574.417969 431.285156 576.332031 430.953125 522.84375 L 430.703125 474.761719 L 461.484375 474.761719 L 461.734375 520.761719 C 461.980469 564.105469 462.148438 566.933594 463.644531 570.675781 C 467.304688 579.578125 474.460938 586.398438 483.363281 589.5625 C 490.683594 592.140625 506.65625 592.804688 513.5625 590.808594 C 525.207031 587.480469 532.113281 582.070312 536.355469 573.007812 L 538.519531 568.347656 L 538.933594 521.757812 L 539.347656 475.171875 L 554.988281 474.921875 L 570.628906 474.757812 L 570.382812 522.757812 C 570.050781 569.675781 570.050781 571.003906 568.21875 576.914062 C 561.644531 598.625 547.503906 612.1875 524.292969 619.171875 C 517.808594 621.085938 515.144531 621.417969 503.164062 621.667969 C 493.597656 621.835938 487.6875 621.585938 483.699219 620.753906 Z"/>
+      <path class="from-left"  fill="#F0F9FF" d="M 108.175781 618.011719 L 93.867188 617.84375 L 94.03125 546.46875 L 94.28125 475.175781 L 102.683594 474.925781 L 111.003906 474.679688 L 126.808594 489.902344 C 135.460938 498.21875 152.933594 515.109375 165.574219 527.421875 L 188.703125 549.796875 L 190.949219 547.964844 C 192.277344 546.96875 201.84375 538.230469 212.410156 528.5 C 222.890625 518.765625 240.359375 502.628906 251.09375 492.726562 L 270.644531 474.761719 L 289.363281 474.761719 L 289.363281 617.84375 L 274.804688 617.84375 C 266.820312 617.84375 259.996094 617.925781 259.664062 618.09375 C 259.25 618.175781 258.832031 598.542969 258.582031 574.417969 L 258.167969 530.660156 L 240.699219 546.46875 C 206.59375 577.414062 199.9375 583.15625 196.609375 584.652344 C 192.199219 586.648438 185.128906 586.648438 180.554688 584.570312 C 178.222656 583.492188 168.742188 574.921875 151.355469 557.949219 C 137.210938 544.222656 125.398438 532.992188 125.148438 532.992188 C 124.902344 532.992188 124.570312 552.125 124.484375 575.585938 C 124.316406 603.203125 123.902344 618.175781 123.402344 618.175781 C 122.988281 618.257812 116.082031 618.175781 108.179688 618.011719 Z"/>
+      <path class="from-left"  fill="#F0F9FF" d="M 307.996094 617.929688 C 307.832031 617.761719 307.664062 585.902344 307.664062 547.132812 C 307.664062 493.480469 307.910156 476.507812 308.664062 475.757812 C 309.328125 475.09375 313.988281 474.761719 324.050781 474.761719 L 338.445312 474.761719 L 338.445312 588.730469 L 416.726562 588.730469 L 418.722656 590.808594 C 420.71875 592.71875 420.800781 593.21875 420.800781 603.953125 C 420.800781 613.601562 420.632812 615.265625 419.300781 616.429688 C 417.972656 617.597656 412.066406 617.761719 363.066406 618.011719 C 332.953125 618.175781 308.160156 618.09375 307.992188 617.929688 Z"/>
+      <path class="from-right" fill="#F0F9FF" d="M 588.347656 617.929688 C 588.179688 617.761719 588.015625 611.109375 588.015625 603.121094 L 588.015625 588.730469 L 718.371094 588.730469 L 717.625 593.054688 C 716.125 601.042969 711.300781 608.445312 704.644531 612.855469 C 697.160156 617.847656 697.324219 617.761719 640.589844 618.015625 C 612.054688 618.179688 588.511719 618.097656 588.347656 617.933594 Z"/>
+      <path class="from-right" fill="#F0F9FF" d="M 588.179688 498.300781 C 588.761719 488.320312 593.585938 481 602.15625 476.925781 C 605.820312 475.179688 606.898438 475.179688 661.972656 474.925781 L 718.042969 474.679688 L 717.542969 478.507812 C 716.210938 487.824219 707.476562 498.558594 697.992188 502.382812 L 693.25 504.292969 L 640.507812 504.542969 L 587.765625 504.789062 Z"/>
+      <path class="from-left"  fill="#22D3EE" d="M 219.234375 618.175781 C 218.902344 617.84375 218.652344 609.609375 218.652344 599.957031 L 218.652344 582.324219 L 227.136719 574.503906 C 241.863281 560.859375 247.101562 556.285156 248.101562 556.285156 C 248.765625 556.285156 248.933594 564.601562 248.601562 587.230469 L 248.1875 618.261719 L 233.960938 618.511719 C 226.222656 618.589844 219.570312 618.429688 219.238281 618.175781 Z"/>
+      <path class="from-right" fill="#22D3EE" d="M 588.015625 545.882812 L 588.015625 531.328125 L 709.636719 531.328125 L 709.058594 535.320312 C 708.808594 537.484375 707.644531 541.226562 706.480469 543.722656 C 703.816406 549.546875 695.332031 557.949219 690.503906 559.445312 C 687.925781 560.195312 674.699219 560.445312 637.511719 560.445312 L 588.015625 560.445312 Z"/>
+    </svg>
+    <div class="loader-tagline">Creative Social Media Agency</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-svg-wrap">
+      <svg style="color:#f0f9ff;" xmlns="http://www.w3.org/2000/svg" viewBox="88 468 634 162" preserveAspectRatio="xMidYMid meet">
+        <path fill="currentColor" d="M 483.695312 620.753906 C 461.484375 616.179688 445.511719 604.699219 437.359375 587.480469 C 431.121094 574.417969 431.285156 576.332031 430.953125 522.84375 L 430.703125 474.761719 L 461.484375 474.761719 L 461.734375 520.761719 C 461.980469 564.105469 462.148438 566.933594 463.644531 570.675781 C 467.304688 579.578125 474.460938 586.398438 483.363281 589.5625 C 490.683594 592.140625 506.65625 592.804688 513.5625 590.808594 C 525.207031 587.480469 532.113281 582.070312 536.355469 573.007812 L 538.519531 568.347656 L 538.933594 521.757812 L 539.347656 475.171875 L 554.988281 474.921875 L 570.628906 474.757812 L 570.382812 522.757812 C 570.050781 569.675781 570.050781 571.003906 568.21875 576.914062 C 561.644531 598.625 547.503906 612.1875 524.292969 619.171875 C 517.808594 621.085938 515.144531 621.417969 503.164062 621.667969 C 493.597656 621.835938 487.6875 621.585938 483.699219 620.753906 Z"/>
+        <path fill="currentColor" d="M 108.175781 618.011719 L 93.867188 617.84375 L 94.03125 546.46875 L 94.28125 475.175781 L 102.683594 474.925781 L 111.003906 474.679688 L 126.808594 489.902344 C 135.460938 498.21875 152.933594 515.109375 165.574219 527.421875 L 188.703125 549.796875 L 190.949219 547.964844 C 192.277344 546.96875 201.84375 538.230469 212.410156 528.5 C 222.890625 518.765625 240.359375 502.628906 251.09375 492.726562 L 270.644531 474.761719 L 289.363281 474.761719 L 289.363281 617.84375 L 274.804688 617.84375 C 266.820312 617.84375 259.996094 617.925781 259.664062 618.09375 C 259.25 618.175781 258.832031 598.542969 258.582031 574.417969 L 258.167969 530.660156 L 240.699219 546.46875 C 206.59375 577.414062 199.9375 583.15625 196.609375 584.652344 C 192.199219 586.648438 185.128906 586.648438 180.554688 584.570312 C 178.222656 583.492188 168.742188 574.921875 151.355469 557.949219 C 137.210938 544.222656 125.398438 532.992188 125.148438 532.992188 C 124.902344 532.992188 124.570312 552.125 124.484375 575.585938 C 124.316406 603.203125 123.902344 618.175781 123.402344 618.175781 C 122.988281 618.257812 116.082031 618.175781 108.179688 618.011719 Z"/>
+        <path fill="currentColor" d="M 307.996094 617.929688 C 307.832031 617.761719 307.664062 585.902344 307.664062 547.132812 C 307.664062 493.480469 307.910156 476.507812 308.664062 475.757812 C 309.328125 475.09375 313.988281 474.761719 324.050781 474.761719 L 338.445312 474.761719 L 338.445312 588.730469 L 416.726562 588.730469 L 418.722656 590.808594 C 420.71875 592.71875 420.800781 593.21875 420.800781 603.953125 C 420.800781 613.601562 420.632812 615.265625 419.300781 616.429688 C 417.972656 617.597656 412.066406 617.761719 363.066406 618.011719 C 332.953125 618.175781 308.160156 618.09375 307.992188 617.929688 Z"/>
+        <path fill="currentColor" d="M 588.347656 617.929688 C 588.179688 617.761719 588.015625 611.109375 588.015625 603.121094 L 588.015625 588.730469 L 718.371094 588.730469 L 717.625 593.054688 C 716.125 601.042969 711.300781 608.445312 704.644531 612.855469 C 697.160156 617.847656 697.324219 617.761719 640.589844 618.015625 C 612.054688 618.179688 588.511719 618.097656 588.347656 617.933594 Z"/>
+        <path fill="currentColor" d="M 588.179688 498.300781 C 588.761719 488.320312 593.585938 481 602.15625 476.925781 C 605.820312 475.179688 606.898438 475.179688 661.972656 474.925781 L 718.042969 474.679688 L 717.542969 478.507812 C 716.210938 487.824219 707.476562 498.558594 697.992188 502.382812 L 693.25 504.292969 L 640.507812 504.542969 L 587.765625 504.789062 Z"/>
+        <path fill="#22D3EE" d="M 219.234375 618.175781 C 218.902344 617.84375 218.652344 609.609375 218.652344 599.957031 L 218.652344 582.324219 L 227.136719 574.503906 C 241.863281 560.859375 247.101562 556.285156 248.101562 556.285156 C 248.765625 556.285156 248.933594 564.601562 248.601562 587.230469 L 248.1875 618.261719 L 233.960938 618.511719 C 226.222656 618.589844 219.570312 618.429688 219.238281 618.175781 Z"/>
+        <path fill="#22D3EE" d="M 588.015625 545.882812 L 588.015625 531.328125 L 709.636719 531.328125 L 709.058594 535.320312 C 708.808594 537.484375 707.644531 541.226562 706.480469 543.722656 C 703.816406 549.546875 695.332031 557.949219 690.503906 559.445312 C 687.925781 560.195312 674.699219 560.445312 637.511719 560.445312 L 588.015625 560.445312 Z"/>
+      </svg>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="work.html">Packages</a></li>
+    <li><a href="contact.html" class="nav-cta">Contact Us →</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="theme-toggle" aria-label="Toggle theme" onclick="toggleTheme()">☀</button>
+    <button class="nav-burger" aria-label="Open menu" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="cursorCanvas"></canvas>
+  <div class="hero-grid"></div>
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      An Up-and-Coming Social Growth Agency
+    </div>
+    <h1 class="hero-title">
+      <span class="line">Your Brand.</span>
+      <span class="line"><span class="gradient">Every</span></span>
+      <span class="line">Feed.</span>
+    </h1>
+    <p class="hero-sub">MLUE manages your social media, creates high-converting content, and automates your customer conversations — so you grow without the grind.</p>
+    <div class="hero-actions">
+      <a href="contact.html" class="btn-primary">Contact Us →</a>
+      <a href="work.html" class="btn-secondary">View Packages</a>
+    </div>
+  </div>
+
+  <!-- 3D floating panel -->
+  <div class="hero-3d-panel" id="hero3dPanel">
+    <div class="hero-3d-inner" id="hero3dInner">
+      <div class="panel-card panel-main">
+        <div class="p-label">Brand Reach</div>
+        <div class="p-stat">+<span>120</span>K</div>
+        <div style="width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin:1.2rem 0;">
+          <div style="width:0%;height:100%;background:linear-gradient(90deg,#2563EB,#22D3EE);border-radius:2px;transition:width 2s ease 0.5s;" id="heroPanelBar"></div>
+        </div>
+        <div class="p-desc">Average increase in brand reach for clients in their first 6 months with MLUE.</div>
+      </div>
+      <div class="panel-card panel-float-1">
+        <div class="mini-stat">8.2M</div>
+        <div class="mini-label">Social users in Sri Lanka</div>
+      </div>
+      <div class="panel-card panel-float-2">
+        <div class="mini-stat">85%</div>
+        <div class="mini-label">On Facebook & Instagram</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span>Instagram Management</span><span class="dot">·</span>
+    <span>WhatsApp Automation</span><span class="dot">·</span>
+    <span>Reels Production</span><span class="dot">·</span>
+    <span>Paid Ads Campaigns</span><span class="dot">·</span>
+    <span>Caption Writing</span><span class="dot">·</span>
+    <span>Community Growth</span><span class="dot">·</span>
+    <span>AI Automation</span><span class="dot">·</span>
+    <span>Brand Storytelling</span><span class="dot">·</span>
+    <span>Instagram Management</span><span class="dot">·</span>
+    <span>WhatsApp Automation</span><span class="dot">·</span>
+    <span>Reels Production</span><span class="dot">·</span>
+    <span>Paid Ads Campaigns</span><span class="dot">·</span>
+    <span>Caption Writing</span><span class="dot">·</span>
+    <span>Community Growth</span><span class="dot">·</span>
+    <span>AI Automation</span><span class="dot">·</span>
+    <span>Brand Storytelling</span><span class="dot">·</span>
+  </div>
+</div>
+
+<!-- SERVICES PREVIEW -->
+<section id="services-preview">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;margin-bottom:4rem;">
+    <div>
+      <p class="section-label reveal">What We Do</p>
+      <h2 class="section-title reveal reveal-delay-1">Services<br>We Offer</h2>
+    </div>
+    <div class="reveal reveal-delay-2" style="text-align:right;">
+      <a href="services.html" class="btn-secondary">All Services →</a>
+    </div>
+  </div>
+  <div class="services-list">
+    <a href="services.html" class="service-row reveal">
+      <div class="svc-num">01</div>
+      <div class="svc-name">Social Media Management & Strategy</div>
+      <div class="svc-arrow">→</div>
+    </a>
+    <a href="services.html" class="service-row reveal reveal-delay-1">
+      <div class="svc-num">02</div>
+      <div class="svc-name">Content Creation & Brand Storytelling</div>
+      <div class="svc-arrow">→</div>
+    </a>
+    <a href="services.html" class="service-row reveal reveal-delay-2">
+      <div class="svc-num">03</div>
+      <div class="svc-name">Video Shooting & Reels Production</div>
+      <div class="svc-arrow">→</div>
+    </a>
+    <a href="services.html" class="service-row reveal reveal-delay-3">
+      <div class="svc-num">04</div>
+      <div class="svc-name">Video Editing & Creative Design</div>
+      <div class="svc-arrow">→</div>
+    </a>
+    <a href="services.html" class="service-row reveal reveal-delay-4">
+      <div class="svc-num">05</div>
+      <div class="svc-name">Paid Ads & Customer Growth Campaigns</div>
+      <div class="svc-arrow">→</div>
+    </a>
+    <a href="services.html" class="service-row reveal">
+      <div class="svc-num">06</div>
+      <div class="svc-name">AI Automation for Business Growth</div>
+      <div class="svc-arrow">→</div>
+    </a>
+  </div>
+</section>
+
+<!-- ABOUT TEASER -->
+<section id="about-teaser">
+  <div class="about-inner">
+    <div>
+      <p class="section-label reveal">Our Story</p>
+      <h2 class="section-title reveal reveal-delay-1">We're Building<br>Something<br><span style="color:var(--cyan)">Real.</span></h2>
+      <p class="section-sub reveal reveal-delay-2" style="margin-top:1.5rem; margin-bottom:2.5rem;">
+        MLUE was built by a team of creatives tired of seeing Sri Lankan brands post into the void. We combine sharp strategy, bold creative, and smart automation — to turn your social media from a task into your best sales channel.
+      </p>
+      <a href="about.html" class="btn-secondary reveal reveal-delay-3">Meet the Team →</a>
+    </div>
+    <div class="about-stats-grid reveal reveal-delay-1">
+      <div class="stat-block">
+        <div class="s-num">+120K</div>
+        <div class="s-label">Average brand reach increase in 6 months</div>
+      </div>
+      <div class="stat-block">
+        <div class="s-num">8.2M</div>
+        <div class="s-label">Social media users in Sri Lanka</div>
+      </div>
+      <div class="stat-block">
+        <div class="s-num">85%</div>
+        <div class="s-label">Of users active on Facebook & Instagram</div>
+      </div>
+      <div class="stat-block">
+        <div class="s-num">6+</div>
+        <div class="s-label">Core services across content, ads & automation</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PACKAGES TEASER -->
+<section id="packages-teaser">
+  <p class="section-label reveal">Pricing</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;margin-bottom:0;">
+    <h2 class="section-title reveal reveal-delay-1">Pick Your<br>Growth Plan.</h2>
+    <div class="reveal reveal-delay-2" style="text-align:right;align-self:end;padding-bottom:1.5rem;">
+      <a href="work.html" class="btn-secondary">All Packages →</a>
+    </div>
+  </div>
+  <div class="packages-grid">
+    <div class="pkg-card reveal">
+      <div class="pkg-badge">Starter</div>
+      <div class="pkg-name">Launch</div>
+      <p class="pkg-tagline">For brands taking their first step into social — done right from day one.</p>
+      <ul class="pkg-features">
+        <li>12 posts / month</li>
+        <li>Caption copywriting</li>
+        <li>Basic graphic design</li>
+        <li>1 platform managed</li>
+      </ul>
+      <a href="work.html" class="pkg-cta">See full details →</a>
+    </div>
+    <div class="pkg-card featured reveal reveal-delay-1">
+      <div class="pkg-badge">Most Popular</div>
+      <div class="pkg-name">Growth</div>
+      <p class="pkg-tagline">Full-service management for brands ready to seriously scale their presence.</p>
+      <ul class="pkg-features">
+        <li>20 posts + 4 Reels / month</li>
+        <li>Strategy & content calendar</li>
+        <li>Paid ad management</li>
+        <li>2 platforms managed</li>
+      </ul>
+      <a href="work.html" class="pkg-cta">See full details →</a>
+    </div>
+    <div class="pkg-card reveal reveal-delay-2">
+      <div class="pkg-badge">Premium</div>
+      <div class="pkg-name">Dominate</div>
+      <p class="pkg-tagline">End-to-end social dominance — content, ads, automation, and more.</p>
+      <ul class="pkg-features">
+        <li>Unlimited content creation</li>
+        <li>WhatsApp AI automation</li>
+        <li>Full ad campaign mgmt</li>
+        <li>All platforms covered</li>
+      </ul>
+      <a href="work.html" class="pkg-cta">See full details →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <h2 class="cta-title reveal">Ready to stop<br>posting into <span class="cyan">the void?</span></h2>
+  <p class="cta-sub reveal reveal-delay-1">Let's talk about your business. First call is free — no pressure, no pitch deck.</p>
+  <div class="cta-actions reveal reveal-delay-2">
+    <a href="contact.html" class="btn-primary">Book a Free Call →</a>
+    <a href="work.html" class="btn-secondary">View Packages</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo-svg-wrap" style="height:36px;">
+        <svg style="color:#f0f9ff;" xmlns="http://www.w3.org/2000/svg" viewBox="88 468 634 162">
+          <path fill="currentColor" d="M 483.695312 620.753906 C 461.484375 616.179688 445.511719 604.699219 437.359375 587.480469 C 431.121094 574.417969 431.285156 576.332031 430.953125 522.84375 L 430.703125 474.761719 L 461.484375 474.761719 L 461.734375 520.761719 C 461.980469 564.105469 462.148438 566.933594 463.644531 570.675781 C 467.304688 579.578125 474.460938 586.398438 483.363281 589.5625 C 490.683594 592.140625 506.65625 592.804688 513.5625 590.808594 C 525.207031 587.480469 532.113281 582.070312 536.355469 573.007812 L 538.519531 568.347656 L 538.933594 521.757812 L 539.347656 475.171875 L 554.988281 474.921875 L 570.628906 474.757812 L 570.382812 522.757812 C 570.050781 569.675781 570.050781 571.003906 568.21875 576.914062 C 561.644531 598.625 547.503906 612.1875 524.292969 619.171875 C 517.808594 621.085938 515.144531 621.417969 503.164062 621.667969 C 493.597656 621.835938 487.6875 621.585938 483.699219 620.753906 Z"/>
+          <path fill="currentColor" d="M 108.175781 618.011719 L 93.867188 617.84375 L 94.03125 546.46875 L 94.28125 475.175781 L 102.683594 474.925781 L 111.003906 474.679688 L 126.808594 489.902344 C 135.460938 498.21875 152.933594 515.109375 165.574219 527.421875 L 188.703125 549.796875 L 190.949219 547.964844 C 192.277344 546.96875 201.84375 538.230469 212.410156 528.5 C 222.890625 518.765625 240.359375 502.628906 251.09375 492.726562 L 270.644531 474.761719 L 289.363281 474.761719 L 289.363281 617.84375 L 274.804688 617.84375 C 266.820312 617.84375 259.996094 617.925781 259.664062 618.09375 C 259.25 618.175781 258.832031 598.542969 258.582031 574.417969 L 258.167969 530.660156 L 240.699219 546.46875 C 206.59375 577.414062 199.9375 583.15625 196.609375 584.652344 C 192.199219 586.648438 185.128906 586.648438 180.554688 584.570312 C 178.222656 583.492188 168.742188 574.921875 151.355469 557.949219 C 137.210938 544.222656 125.398438 532.992188 125.148438 532.992188 C 124.902344 532.992188 124.570312 552.125 124.484375 575.585938 C 124.316406 603.203125 123.902344 618.175781 123.402344 618.175781 C 122.988281 618.257812 116.082031 618.175781 108.179688 618.011719 Z"/>
+          <path fill="currentColor" d="M 307.996094 617.929688 C 307.832031 617.761719 307.664062 585.902344 307.664062 547.132812 C 307.664062 493.480469 307.910156 476.507812 308.664062 475.757812 C 309.328125 475.09375 313.988281 474.761719 324.050781 474.761719 L 338.445312 474.761719 L 338.445312 588.730469 L 416.726562 588.730469 L 418.722656 590.808594 C 420.71875 592.71875 420.800781 593.21875 420.800781 603.953125 C 420.800781 613.601562 420.632812 615.265625 419.300781 616.429688 C 417.972656 617.597656 412.066406 617.761719 363.066406 618.011719 C 332.953125 618.175781 308.160156 618.09375 307.992188 617.929688 Z"/>
+          <path fill="currentColor" d="M 588.347656 617.929688 C 588.179688 617.761719 588.015625 611.109375 588.015625 603.121094 L 588.015625 588.730469 L 718.371094 588.730469 L 717.625 593.054688 C 716.125 601.042969 711.300781 608.445312 704.644531 612.855469 C 697.160156 617.847656 697.324219 617.761719 640.589844 618.015625 C 612.054688 618.179688 588.511719 618.097656 588.347656 617.933594 Z"/>
+          <path fill="currentColor" d="M 588.179688 498.300781 C 588.761719 488.320312 593.585938 481 602.15625 476.925781 C 605.820312 475.179688 606.898438 475.179688 661.972656 474.925781 L 718.042969 474.679688 L 717.542969 478.507812 C 716.210938 487.824219 707.476562 498.558594 697.992188 502.382812 L 693.25 504.292969 L 640.507812 504.542969 L 587.765625 504.789062 Z"/>
+          <path fill="#22D3EE" d="M 219.234375 618.175781 C 218.902344 617.84375 218.652344 609.609375 218.652344 599.957031 L 218.652344 582.324219 L 227.136719 574.503906 C 241.863281 560.859375 247.101562 556.285156 248.101562 556.285156 C 248.765625 556.285156 248.933594 564.601562 248.601562 587.230469 L 248.1875 618.261719 L 233.960938 618.511719 C 226.222656 618.589844 219.570312 618.429688 219.238281 618.175781 Z"/>
+          <path fill="#22D3EE" d="M 588.015625 545.882812 L 588.015625 531.328125 L 709.636719 531.328125 L 709.058594 535.320312 C 708.808594 537.484375 707.644531 541.226562 706.480469 543.722656 C 703.816406 549.546875 695.332031 557.949219 690.503906 559.445312 C 687.925781 560.195312 674.699219 560.445312 637.511719 560.445312 L 588.015625 560.445312 Z"/>
+        </svg>
+      </div>
+      <p>Sri Lanka's creative social media agency — turning content into customers.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="about.html">About Us</a>
+      <a href="services.html">Services</a>
+      <a href="work.html">Packages</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <a href="services.html">Social Media</a>
+      <a href="services.html">Content Creation</a>
+      <a href="services.html">Paid Ads</a>
+      <a href="services.html">AI Automation</a>
+    </div>
+    <div class="footer-col">
+      <h4>Get in Touch</h4>
+      <a href="mailto:info@mluelk.com">info@mluelk.com</a>
+      <a href="tel:+94728444300">+94 728 444 300</a>
+      <a href="contact.html">Book a Free Call</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 MLUE. All rights reserved.</div>
+    <div class="footer-social">
+      <a href="https://www.instagram.com/mluelk/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#ig-grad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <defs><linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs>
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+      </a>
+      <a href="https://www.linkedin.com/company/mluelk/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A66C2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── CURSOR GLOW (desktop only) ─────────────────────────── */
+(function() {
+  if (window.matchMedia('(hover: none)').matches) return; // skip touch devices
+
+  const canvas = document.getElementById('cursorCanvas');
+  const hero = document.getElementById('hero');
+  if (!canvas || !hero) return;
+
+  const ctx = canvas.getContext('2d');
+  let mouse = { x: -999, y: -999 };
+  let animFrame;
+
+  function resize() {
+    canvas.width = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  hero.addEventListener('mousemove', (e) => {
+    const rect = hero.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+  hero.addEventListener('mouseleave', () => {
+    mouse.x = -999; mouse.y = -999;
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (mouse.x > 0) {
+      const grad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 220);
+      grad.addColorStop(0, 'rgba(34,211,238,0.13)');
+      grad.addColorStop(0.4, 'rgba(37,99,235,0.07)');
+      grad.addColorStop(1, 'rgba(37,99,235,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 220, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── THEME ──────────────────────────────────────────────── */
+function applyTheme(theme) {
+  const root = document.documentElement;
+  const toggle = document.querySelector('.theme-toggle');
+  const isLight = theme === 'light';
+  root.setAttribute('data-theme', isLight ? 'light' : 'dark');
+  if (toggle) toggle.textContent = isLight ? '🌙' : '☀';
+  localStorage.setItem('mlue-theme', isLight ? 'light' : 'dark');
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  applyTheme(cur === 'light' ? 'dark' : 'light');
+}
+const savedTheme = localStorage.getItem('mlue-theme');
+if (savedTheme) {
+  applyTheme(savedTheme);
+} else {
+  applyTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+}
+
+/* ── NAV ────────────────────────────────────────────────── */
+function toggleMenu() {
+  const links = document.querySelector('.nav-links');
+  if (!links) return;
+  links.classList.toggle('open');
+}
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('main-nav');
+  if (nav) nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ── SCROLL REVEAL ──────────────────────────────────────── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+
+/* ── 3D HERO PANEL ──────────────────────────────────────── */
+const panel3d = document.getElementById('hero3dInner');
+if (panel3d) {
+  document.addEventListener('mousemove', (e) => {
+    const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+    const rx = (e.clientY - cy) / cy * 7;
+    const ry = (e.clientX - cx) / cx * -7;
+    panel3d.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+  });
+}
+window.addEventListener('scroll', () => {
+  const p = document.getElementById('hero3dPanel');
+  if (p) p.style.transform = `translateY(calc(-50% + ${window.scrollY * 0.14}px))`;
+});
+setTimeout(() => {
+  const b = document.getElementById('heroPanelBar');
+  if (b) b.style.width = '78%';
+}, 1800); // after loader
+</script>
+<script>
+/* ── MLUE INTRO LOADER ─────────────────────────────────────
+   First-visit only (sessionStorage). Logo letters sweep in
+   from left/right, then the assembled logo docks into the
+   navbar logo position. Pure measurement + CSS transform —
+   no animationend dependency, cannot get stuck.
+───────────────────────────────────────────────────────────*/
+(function () {
+  var loader = document.getElementById('mlue-loader');
+  if (!loader) return;
+
+  if (sessionStorage.getItem('mlue_seen')) {
+    loader.classList.add('skip');
+    return;
+  }
+  sessionStorage.setItem('mlue_seen', '1');
+  document.body.style.overflow = 'hidden';
+
+  var stage = document.getElementById('loaderStage');
+  var navLogo = document.querySelector('.nav-logo .logo-svg-wrap svg');
+
+  // Total time for all letter paths to finish sweeping in (last delay 0.5s + duration 0.7s)
+  var SWEEP_DONE = 1250;
+  // Hold the assembled logo on screen briefly before docking
+  var DOCK_AT = 1700;
+  // Remove loader after dock transition completes
+  var REMOVE_AT = 2550;
+
+  setTimeout(function () {
+    try {
+      if (stage && navLogo) {
+        var stageRect = stage.getBoundingClientRect();
+        var navRect = navLogo.getBoundingClientRect();
+
+        // Scale: target nav logo height vs current loader logo height
+        var scale = navRect.height / stageRect.height;
+
+        // Center points
+        var stageCenterX = stageRect.left + stageRect.width / 2;
+        var stageCenterY = stageRect.top + stageRect.height / 2;
+        var navCenterX = navRect.left + navRect.width / 2;
+        var navCenterY = navRect.top + navRect.height / 2;
+
+        var tx = navCenterX - stageCenterX;
+        var ty = navCenterY - stageCenterY;
+
+        stage.style.setProperty('--tx', tx + 'px');
+        stage.style.setProperty('--ty', ty + 'px');
+        stage.style.setProperty('--ts', scale);
+        stage.classList.add('dock');
+      }
+    } catch (e) {
+      // If measurement fails for any reason, just fall through to fade-out below
+    }
+  }, DOCK_AT);
+
+  setTimeout(function () {
+    loader.classList.add('loader-done');
+    document.body.style.overflow = '';
+  }, REMOVE_AT);
+
+  // Hard safety net: no matter what, loader is force-removed from the DOM
+  setTimeout(function () {
+    if (loader && loader.parentNode) loader.remove();
+    document.body.style.overflow = '';
+  }, REMOVE_AT + 600);
+})();
+</script>
+</body>
+</html>
